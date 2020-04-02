@@ -6,9 +6,4 @@ config:
     image_view:
       width: 640
       height: 512
-  rguide:
-    K: /rovi/left/remap/K
 
-rguide:
-  zratio: 1.2
-  rpy: [0,0,0, 40,0,0, 0,40,-10, -40,0,0, 0,-40,10]

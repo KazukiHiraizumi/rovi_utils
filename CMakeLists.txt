@@ -10,12 +10,21 @@ find_package(catkin REQUIRED COMPONENTS
   rovi
 )
 
+add_service_files(
+  FILES
+  TextFilter.srv
+)
+
 catkin_python_setup()
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs sensor_msgs tf2_ros
 )
-
 
 include_directories(
   ${catkin_INCLUDE_DIRS}

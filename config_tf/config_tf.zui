@@ -8,3 +8,5 @@
 "class":"Number", "label":"Y","name":"/config_tf/camera/transform/rotation/y","format":".6f"
 "class":"Number", "label":"Z","name":"/config_tf/camera/transform/rotation/z","format":".6f"
 "class":"Number", "label":"W","name":"/config_tf/camera/transform/rotation/w","format":".6f"
+"class":"Pub",    "label":"TFに反映","name":"/reload/config_tf"
+

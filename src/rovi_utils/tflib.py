@@ -19,13 +19,13 @@ def dict2tf(d):
 
 def tf2dict(tf):
   d={'translation':{'x':0,'y':0,'z':0},'rotation':{'x':0,'y':0,'z':0,'w':0}}
-  d['translation']['x']=tf.translation.x
-  d['translation']['y']=tf.translation.y
-  d['translation']['z']=tf.translation.z
-  d['rotation']['x']=tf.rotation.x
-  d['rotation']['y']=tf.rotation.y
-  d['rotation']['z']=tf.rotation.z
-  d['rotation']['w']=tf.rotation.w
+  d['translation']['x']=float(tf.translation.x)
+  d['translation']['y']=float(tf.translation.y)
+  d['translation']['z']=float(tf.translation.z)
+  d['rotation']['x']=float(tf.rotation.x)
+  d['rotation']['y']=float(tf.rotation.y)
+  d['rotation']['z']=float(tf.rotation.z)
+  d['rotation']['w']=float(tf.rotation.w)
   return d
 
 def toRT(tf):
@@ -165,6 +165,20 @@ def fromVec(vec):
   tf.rotation.z=vec[5]
   tf.rotation.w=vec[6]
   return tf
+
+def toRTfromVec(vec):
+  tx=vec[0]
+  ty=vec[1]
+  tz=vec[2]
+  x=vec[3]
+  y=vec[4]
+  z=vec[5]
+  w=vec[6]
+  xx=x*x
+  yy=y*y
+  zz=z*z
+  ww=w*w
+  return np.matrix([[xx-yy-zz+ww,2.*(x*y-w*z),2.*(x*z+w*y),tx],[2.*(x*y+w*z),yy+ww-xx-zz,2.*(y*z-w*x),ty],[2.*(x*z-w*y),2.*(y*z+w*x),zz+ww-xx-yy,tz],[ 0, 0, 0, 1]])
 
 if __name__ == '__main__':
   vec=np.array([350, 0, 415, 0.35330038553 ,0.712956175793, -0.542718550391, -0.268940335466])

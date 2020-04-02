@@ -16,26 +16,18 @@
     <remap from="gridboard/image_in" to="/rovi/left/image_rect" />
     <remap from="gridboard/reload" to="/reload/gridboard" />
   </node>
-  <node pkg="visp_hand2eye_calibration" type="visp_hand2eye_calibration_calibrator" name="calibrator" />
   <node pkg="rovi_utils" type="rcalib.py" name="rcalib" output="screen">
     <remap from="~config" to="/config/rcalib" />
     <remap from="~clear" to="/request/clear" />
     <remap from="~capture" to="/request/capture" />
     <remap from="~solve" to="/request/solve" />
-    <remap from="~cleared" to="/response/cleare" />
+    <remap from="~cleared" to="/response/clear" />
     <remap from="~captured" to="/response/capture" />
     <remap from="~solved" to="/response/solve" />
     <remap from="~count" to="/rcalib/count" />
   </node>
-  <node pkg="rovi_utils" type="rguide.py" name="rguide" output="screen">
-    <remap from="~config" to="/config/rguide" />
-    <remap from="~param" to="/rguide" />
-    <remap from="~in/image" to="/gridboard/image_out" />
-    <remap from="~out/image" to="/rguide/image" />
-    <remap from="~count" to="/rcalib/count" />
-  </node>
   <!--   User interface  -->
-  <node ns="rcalib" pkg="image_view" type="image_view" name="image_view" args="image:=/rguide/image">
+  <node ns="rcalib" pkg="image_view" type="image_view" name="image_view" args="image:=/gridboard/image_out">
     <remap from="~" to="/config/rcalib/image_view" />
   </node>
   <node pkg="rtk_tools" type="panel.py" name="" args="

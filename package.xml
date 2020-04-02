@@ -16,5 +16,4 @@
   <depend>sensor_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>rovi</depend>
-  <depend>visp_hand2eye_calibration</depend>
 </package>

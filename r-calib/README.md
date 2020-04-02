@@ -1,5 +1,8 @@
 # Robot Calibration
 
+[VTからロボットキャリブを使うときはこちら](HowTo.md)
+
+
 ## 準備
 
 1. VISPスタックをインストール

@@ -24,13 +24,14 @@ def cb_save_ply(msg):
   pc=o3d.PointCloud()
   pc.points=o3d.Vector3dVector(d)
   print 'save model PC',d.dtype,d.shape
-  o3d.write_point_cloud(Args["wd"]+"/sample.ply",pc,True,False)
+  o3d.write_point_cloud(Args["wd"],pc,True,False)
   return
 
 def cb_load_ply(msg):
   global outPn
-  pcd=o3d.read_point_cloud(Args["wd"]+"/sample.ply")
+  pcd=o3d.read_point_cloud(Args["wd"])
   outPn=np.reshape(np.asarray(pcd.points),(-1,3))
+  print "load",len(outPn)
   pub.publish(np2F(outPn))
   f=Bool();f.data=True;pub_ld.publish(f)
 
