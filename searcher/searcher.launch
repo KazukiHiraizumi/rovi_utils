@@ -1,32 +1,37 @@
 <launch>
-  <!-- dummy TF -->
-  <node pkg="tf" type="static_transform_publisher" name="" args="0.01 0 0 0 0 0 1 world camera/capture0 1000" />
-  <!--   PointCloud publisher from file. For testing   -->
-  <node pkg="rovi_utils" type="filer.py" name="filer" args="wd:=$(find rovi_utils)/data">
+  <node pkg="tf" type="static_transform_publisher" name="" args="0 0 0 0 0 0 1 world camera/capture0 1000" />
+  <node pkg="rovi_utils" type="filer.py" name="filer" args="wd:=$(find rovi_utils)/data/sample.ply">
     <remap from="~load" to="/request/capture" />
-    <remap from="~loaded" to="/request/solve" />
     <remap from="~out/floats" to="/scene/surface/floats" />
   </node>
 
   <!--   Main body of master teach   -->
   <rosparam command="load" file="$(find rovi_utils)/searcher/config.yaml" />
-  <rosparam command="load" file="$(find rovi_utils)/searcher/recipe/param.yaml" />
-  <node pkg="rovi_utils" type="searcher.py" name="" args="path:=$(find rovi_utils)/searcher/recipe" output="screen">
+  <rosparam command="load" file="$(find rovi_utils)/searcher/param.yaml" />
+  <node pkg="rovi_utils" type="searcher.py" name="" args="path:=$(find rovi_utils)/searcher" output="screen">
     <remap from="~config" to="/config/searcher" />
     <remap from="~param" to="/searcher" />
     <remap from="~in/surface/floats" to="/scene/surface/floats" />
     <remap from="~master/surface/floats" to="/master/surface/floats" />
     <remap from="~clear" to="/request/clear" />
-    <remap from="~cleared" to="/response/clear" />
-    <remap from="~solve" to="/request/solve" />
-    <remap from="~solved" to="/response/solve" />
     <remap from="~load" to="/request/model_load" />
-    <remap from="~loaded" to="/response/model_load" />
+    <remap from="~loaded" to="/response/recipe_load" />
     <remap from="~save" to="/request/model_save" />
+    <remap from="~saved" to="/response/model_save" />
+    <remap from="~solve" to="/request/solve" />
+    <remap from="~solved" to="/searcher/solved" />
+    <remap from="~redraw" to="/request/redraw" />
+    <remap from="~score" to="/searcher/score" />
+    <remap from="~stat" to="/searcher/stat" />
   </node>
-  <node pkg="rovi_utils" type="solver_test.py" name="" output="screen">
-    <remap from="~do" to="/response/solve" />
-    <remap from="~done" to="/request/capture" />
+  <node pkg="rovi_utils" type="picker.py" name="" output="screen">
+    <remap from="~config" to="/config/picker" />
+    <remap from="~param" to="/picker" />
+    <remap from="~clear" to="/request/clear" />
+    <remap from="~solve" to="/searcher/solved" />
+    <remap from="~score" to="/searcher/score" />
+    <remap from="~solved" to="/response/solve" />
+    <remap from="~redraw" to="/request/redraw" />
   </node>
 
   <!--   PointColuds to show on RViz   -->
@@ -43,12 +48,4 @@
     <remap from="floats" to="/master/surface/floats" />
     <remap from="pc" to="/master/surface/pc0" />
   </node>
-  <node pkg="rovi" type="floats2pc" name="" args="camera/capture0/solve1">
-    <remap from="floats" to="/master/surface/floats" />
-    <remap from="pc" to="/master/surface/pc1" />
-  </node>
-
-  <!--  UI  -->
-  <node pkg="rqt_param_manager" type="rqt_param_manager" name="" args="conf:=$(find rovi_utils)/searcher/demo.ui" />
-  <node pkg="rovi_utils" type="tk_message.py" name="" args="/message /rovi/error" />
 </launch>

@@ -14,5 +14,5 @@ rovi:
       ExposureTime: 8400
       Gain: 0
     projector:
-      Intencity: 120
+      Intensity: 120
       Mode: 1

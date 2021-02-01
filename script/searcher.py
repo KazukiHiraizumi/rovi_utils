@@ -15,6 +15,7 @@ import yaml
 from rovi.msg import Floats
 from rospy.numpy_msg import numpy_msg
 from std_msgs.msg import Bool
+from std_msgs.msg import Int64
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import MultiArrayDimension
@@ -23,6 +24,7 @@ from geometry_msgs.msg import Transform
 from geometry_msgs.msg import TransformStamped
 from rovi_utils import tflib
 from rovi_utils import sym_solver as rotsym
+from rovi_utils import axis_solver as rotjour
 from scipy import optimize
 
 Param={
@@ -32,14 +34,17 @@ Param={
   "distance_threshold":0.1,
   "icp_threshold":0.001,
   "rotate":0,
-  "repeat":1}
+  "repeat":1,
+  "cutter":{"base":0,"offset":0,"width":0}
+}
 Config={
   "proc":0,
   "path":"recipe",
   "scenes":["surface"],
   "solver":"o3d_solver",
-  "scene_frame_id":[],
-  "master_frame_id":[]}
+  "scene_frame_ids":[],
+  "master_frame_ids":[],
+  "base_frame_id":"world"}
 Score={
   "proc":[],
   "Tx":[],
@@ -48,10 +53,7 @@ Score={
   "Qx":[],
   "Qy":[],
   "Qz":[],
-  "Qw":[],
-  "distance":[],
-  "azimuth":[],
-  "rotation":[]}
+  "Qw":[]}
 
 def P0():
   return np.array([]).reshape((-1,3))
@@ -62,11 +64,8 @@ def np2F(d):  #numpy to Floats
   return f
 
 def learn_feat(mod,param):
-  n1=len(mod[0])
   pcd=solver.learn(mod,param)
-  n2=len(pcd[0].points)
-  pub_msg.publish("searcher::noise reduced "+str(n1)+"->"+str(n2))
-  if Config["proc"]==0: o3d.io.write_point_cloud("/tmp/model.ply",pcd[0])
+  if Config["proc"]==0: o3d.write_point_cloud("/tmp/model.ply",pcd[0])
   return pcd
 
 def learn_rot(pc,num,thres):
@@ -77,14 +76,30 @@ def learn_rot(pc,num,thres):
     if len(RotAxis)>1:
       tf=TransformStamped()
       tf.header.stamp=rospy.Time.now()
-      tf.header.frame_id=Config["master_frame_id"][0]
-      tf.child_frame_id=Config["master_frame_id"][0]+'/axis'
+      tf.header.frame_id=Config["master_frame_ids"][0]
+      tf.child_frame_id=Config["master_frame_ids"][0]+'/axis'
       tf.transform=tflib.fromRT(RotAxis[0])
       tfReg.append(tf)
     else:
       RotAxis=None
       print 'No axis'
       pub_err.publish("searcher::No axis")
+
+def learn_journal(pc,base,ofs,wid):
+  global JourAxis,tfReg
+  JourAxis=None
+  if wid>0:
+    JourAxis=rotjour.solve(pc,base,base+ofs,wid)
+    if JourAxis is not None:
+      tf=TransformStamped()
+      tf.header.stamp=rospy.Time.now()
+      tf.header.frame_id=Config["master_frame_ids"][0]
+      tf.child_frame_id=Config["master_frame_ids"][0]+'/journal'
+      tf.transform=tflib.fromRT(JourAxis)
+      tfReg.append(tf)
+    else:
+      print 'No journal'
+      pub_err.publish("searcher::No journal")
 
 def cb_master(event):
   if Config["proc"]==0:
@@ -109,14 +124,13 @@ def cb_save(msg):
     pub_pcs[n].publish(np2F(m))
   tfReg=[]
 #copy TF scene...->master... and save them
-  for s,m in zip(Config["scene_frame_id"],Config["master_frame_id"]):
+  for s,m in zip(Config["scene_frame_ids"],Config["master_frame_ids"]):
     try:
-      tf=tfBuffer.lookup_transform("world",s,rospy.Time())
+      tf=tfBuffer.lookup_transform(Config["base_frame_id"],s,rospy.Time())
     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-#     pub_msg.publish("searcher::capture::lookup failure world->"+s)
       tf=TransformStamped()
       tf.header.stamp=rospy.Time.now()
-      tf.header.frame_id="world"
+      tf.header.frame_id=Config["base_frame_id"]
       tf.transform.rotation.w=1
     path=Config["path"]+"/"+m.replace('/','_')+".yaml"
     f=open(path,"w")
@@ -140,7 +154,7 @@ def cb_load(msg):
   rospy.Timer(rospy.Duration(0.1),cb_master,oneshot=True)
   tfReg=[]
 #load TF such as master/camera...
-  for m in Config["master_frame_id"]:
+  for m in Config["master_frame_ids"]:
     path=Config["path"]+"/"+m.replace('/','_')+".yaml"
     try:
       f=open(path, "r+")
@@ -148,7 +162,7 @@ def cb_load(msg):
       pub_msg.publish("searcher error::master TF file load failed"+path)
       tf=TransformStamped()
       tf.header.stamp=rospy.Time.now()
-      tf.header.frame_id="world"
+      tf.header.frame_id=Config["base_frame_id"]
       tf.child_frame_id=m
       tf.transform.rotation.w=1
       tfReg.append(tf)
@@ -158,7 +172,7 @@ def cb_load(msg):
       trf=tflib.dict2tf(yd)
       tf=TransformStamped()
       tf.header.stamp=rospy.Time.now()
-      tf.header.frame_id="world"
+      tf.header.frame_id=Config["base_frame_id"]
       tf.child_frame_id=m
       tf.transform=trf
       tfReg.append(tf)
@@ -166,6 +180,7 @@ def cb_load(msg):
   print 'learning pc',Param['rotate']
   pcd=learn_feat(Model,Param)
   learn_rot(pcd[0],Param['rotate'],Param['icp_threshold'])
+  learn_journal(pcd[0],Param["cutter"]["base"],Param["cutter"]["offset"],Param["cutter"]["width"])
   if Config["proc"]==0: broadcaster.sendTransform(tfReg)
   pub_msg.publish("searcher::model loaded and learning completed")
   pub_loaded.publish(mTrue)
@@ -185,9 +200,9 @@ def cb_score():
 
 def cb_solve(msg):
   global Score
-  if [x for x in Scene if x is None]:
-    pub_msg.publish("searcher::short scene data")
-    ret=Bool();ret.data=False;pub_Y2.publish(ret)
+  if len(filter(lambda x:len(x)>0,Scene))==0:
+    pub_msg.publish("searcher::Lacked scene to solve")
+    pub_Y2.publish(mFalse)
     return
   Param.update(rospy.get_param("~param"))
   for key in Score: Score[key]=[]
@@ -216,9 +231,10 @@ def cb_solve_do(msg):
         R=wrt[n][:3,:3]
         vr,jac=cv2.Rodrigues(R)
         rot.append(abs(np.ravel(vr)[2]))
-      tf=tflib.fromRT(wrt[np.argmin(np.asarray(rot))])
+      tf=tflib.fromRT(wrt[np.argmin(np.array(rot))])
     else:
       tf=tflib.fromRT(rt)
+
     Score["Tx"].append(tf.translation.x)
     Score["Ty"].append(tf.translation.y)
     Score["Tz"].append(tf.translation.z)
@@ -227,20 +243,12 @@ def cb_solve_do(msg):
     Score["Qz"].append(tf.rotation.z)
     Score["Qw"].append(tf.rotation.w)
 
-  result.pop("transform")   #to make cb_score publish other member but for "transform"
+  result["proc"]=float(Config["proc"])
   for key in result:
-    if key in Score: Score[key].extend(result[key])
-    else: Score[key]=result[key]
-
-  for rt in RTs:
-    Score["proc"].append(float(Config["proc"]))
-    R=rt[:3,:3]
-    T=rt[:3,3]
-    Score["distance"].append(np.linalg.norm(T))
-    vz=np.ravel(R.T[2]) #basis vector Z
-    Score["azimuth"].append(np.arccos(np.dot(vz,np.array([0,0,1]))))
-    vr,jac=cv2.Rodrigues(R)
-    Score["rotation"].append(np.ravel(vr)[2])
+    if type(result[key]) is not list: # scalar->list
+      Score[key]=[result[key]]*len(RTs)
+    elif type(result[key][0]) is float: # float->list
+      Score[key]=result[key]
   cb_score()
 
 def cb_ps(msg,n):
@@ -248,7 +256,6 @@ def cb_ps(msg,n):
   pc=np.reshape(msg.data,(-1,3))
   Scene[n]=pc
   print "cb_ps",pc.shape
-
 
 def cb_clear(msg):
   global Scene
@@ -330,6 +337,7 @@ if Config["proc"]==0: rospy.Subscriber("~save",Bool,cb_save)
 rospy.Subscriber("~load",Bool,cb_load)
 if Config["proc"]==0: rospy.Subscriber("~redraw",Bool,cb_master)
 if Config["proc"]==0: rospy.Subscriber("/searcher/dump",Bool,cb_dump)
+pub_hash=rospy.Publisher("~hash",Int64,queue_size=1)
 pub_msg=rospy.Publisher("/message",String,queue_size=1)
 pub_err=rospy.Publisher("/error",String,queue_size=1)
 
@@ -348,6 +356,7 @@ broadcaster=tf2_ros.StaticTransformBroadcaster()
 Scene=[None]*len(Config["scenes"])
 Model=[None]*len(Config["scenes"])
 RotAxis=None
+JourAxis=None
 tfReg=[]
 
 rospy.Timer(rospy.Duration(5),cb_load,oneshot=True)

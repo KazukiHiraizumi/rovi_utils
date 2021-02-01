@@ -1,11 +1,4 @@
 config:
   picker:
-    source_frame_id: camera/capture0
-    target_frame_id: solve
-    threshold:
-      xy: 0.1
-      rotxy: 0.1 
-      rotz: 3.14
-    collision:
-      waypoint_frame_id: waypoint   #teaching point
-
+    multiplex: 1
+    solve_frame_id: "camera/capture0"

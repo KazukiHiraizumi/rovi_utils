@@ -15,7 +15,7 @@ rovi:
       ExposureTime: 8400
       Gain: 0
     projector:
-      Intencity: 255
+      Intensity: 255
       Mode: ''
 searcher:
   distance_threshold: 1.5

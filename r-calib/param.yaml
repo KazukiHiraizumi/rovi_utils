@@ -15,9 +15,4 @@ gridboard:
   n_minimum: 9
   origin_x: 6
   origin_y: 9
-  unitleng: 0.01
-rguide:
-  distance: 400
-  height: 190
-  width: 280
-  zratio: 1.2
+  unitleng: 15

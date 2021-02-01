@@ -1,8 +1,11 @@
 config:
   searcher:
-    solver: km1_solver
+    solver: ransac_solver
     scenes: ["surface"]
-    scene_frame_id: ["camera/capure0"]
-    master_frame_id: ["camera/master0"]
+    scene_frame_ids: ["camera/capure0"]
+    master_frame_ids: ["camera/master0"]
+    base_frame_id: "world"
     solve_frame_id: "camera/capture0"
-    tf_delay: 0.1
+  picker:
+    multiplex: 1
+    solve_frame_id: "camera/capture0"

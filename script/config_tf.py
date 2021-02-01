@@ -36,11 +36,10 @@ def cb_reload(f):
 
 def cb_update(t):
   for tr in trArray:
-    if tr.header.frame_id==t.header.frame_id:
-      if tr.child_frame_id==t.child_frame_id:
-        tr.header.stamp=t.header.stamp
-        tr.transform=t.transform
-        print "config_tf::update",t
+    if tr.child_frame_id==t.child_frame_id:
+      tr.header.stamp=t.header.stamp
+      tr.transform=t.transform
+      print "config_tf::update",t
   broadcaster.sendTransform(trArray)
 
 ###############################################################

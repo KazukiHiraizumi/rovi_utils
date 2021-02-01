@@ -8,7 +8,7 @@ rovi:
       ExposureTime: 8400
       Gain: 0
     projector:
-      Intencity: 255
+      Intensity: 255
 
 cropper:
   cropR: 201

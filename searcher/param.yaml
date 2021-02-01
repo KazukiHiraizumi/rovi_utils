@@ -1,0 +1,11 @@
+searcher:
+  distance_threshold: 0.002
+  feature_mesh: 0.002
+  feature_radius: 0.007
+  icp_threshold: 0.001
+  normal_radius: 0.003
+  repeat: 3
+picker:
+  fitness:
+    max: 1
+    min: 0

@@ -8,7 +8,7 @@
 "Title:","位相シフト調整"
 "Number:/rovi/pshift_genpc/camera/Gain","カメラゲイン(0-63)"
 "Number:/rovi/pshift_genpc/camera/ExposureTime","カメラ露光時間(4200,8400,16800us)"
-"Number:/rovi/pshift_genpc/projector/Intencity","プロジェクタ発光強度(0-255)"
+"Number:/rovi/pshift_genpc/projector/Intensity","プロジェクタ発光強度(0-255)"
 "Publisher:/crop/capture","3Dスキャン"
 "Echo:/rovi/pcount","撮像点数"
 "Title:","クロップ"

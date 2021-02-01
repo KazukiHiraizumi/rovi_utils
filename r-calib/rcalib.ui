@@ -4,7 +4,7 @@
 "Number:/rovi/live/camera/Gain","カメラゲイン(0-63)"
 "Number:/rovi/live/camera/SoftwareTriggerRate","フレームレート"
 "Number:/rovi/pshift_genpc/projector/Mode","発光モード[1..2]"
-"Number:/rovi/pshift_genpc/projector/Intencity","発光強度"
+"Number:/rovi/pshift_genpc/projector/Intensity","発光強度"
 "Title:","操作"
 "Echo:/rcalib/count","カウント"
 "Publisher:/request/clear","カウントリセット"

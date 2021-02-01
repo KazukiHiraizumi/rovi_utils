@@ -1,5 +1,4 @@
 <launch>
   <rosparam command="load" file="$(find rovi_utils)/config_tf.yaml" />
   <node pkg="rovi_utils" type="config_tf.py" name="config_tf" />
-  <node pkg="rtk_tools" type="panel.py" name="" args="conf:=$(find rovi_utils)/config_tf/config_tf.zui dump:=$(find rovi_utils)/config_tf.yaml lift:=False geom:=300x300-0+5" />
 </launch>

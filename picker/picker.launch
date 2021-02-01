@@ -1,24 +1,15 @@
 <launch>
-<!--
-  <rosparam command="load" file="$(find rovi_utils)/picker/config_tf.yaml" />
-  <node pkg="rovi_utils" type="config_tf.py" name="config_tf" output="screen" />
--->
-  <node pkg="tf" type="static_transform_publisher" name="" args="0.1 0.2 0 0 0 0 1 world camera/capture0 1000" />
-  <node pkg="tf" type="static_transform_publisher" name="" args="0 0 0 0 0 0 1 world camera/capture0/solve0 1000" />
-  <node pkg="tf" type="static_transform_publisher" name="" args="0 0 0 0 0 0 1 world camera/master0 1000" />
-  <node pkg="rovi_utils" type="filer.py" name="filer" args="wd:=$(find rovi_utils)/data">
-    <remap from="~load" to="/request/capture" />
-    <remap from="~out/floats" to="/scene/floats" />
-  </node>
-  <node pkg="rovi_utils" type="path_test.js" name="" />
+  <node pkg="tf" type="static_transform_publisher" name="" args="0 0 0 0 0 0 1 world camera/capture0 1000" />
+  <rosparam command="load" file="$(find rovi_utils)/picker/config.yaml" />
+  <rosparam command="load" file="$(find rovi_utils)/searcher/param.yaml" />
   <node pkg="rovi_utils" type="picker.py" name="" output="screen">
     <remap from="~config" to="/config/picker" />
     <remap from="~param" to="/picker" />
+    <remap from="~clear" to="/request/clear" />
     <remap from="~solve" to="/request/solve" />
+    <remap from="~score" to="/picker/score" />
     <remap from="~solved" to="/response/solve" />
-    <remap from="~failed" to="/response/solve" />
-    <remap from="~path" to="/waypoint" />
-    <remap from="~repath" to="/waypoint2" />
-    <remap from="~floats" to="/scene/floats" />
   </node>
+  <!--   PointColuds to show on RViz   -->
+  <node pkg="rviz" type="rviz" name="" args="-d $(find rovi_utils)/picker/demo.rviz" />
 </launch>

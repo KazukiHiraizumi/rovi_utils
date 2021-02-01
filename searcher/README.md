@@ -63,8 +63,11 @@ roslaunch rovi_utils searcher.launch
 ~~~
 rostopic pub -1 /request/capture std_msgs/Bool True
 ~~~
-にて∞テストを開始します。マスターデータはrecipe/以下、シーンデータは../data/sample.plyを用いています。  
-solver_test.pyにて誤認識を検出する予定(アルゴリズム検討中)。
+にて撮影をシミュレーﾄします。マスターデータはrecipe/以下、シーンデータは../data/sample.plyを用いています。  
+~~~
+rostopic pub -1 /request/solve std_msgs/Bool True
+~~~
+にて解析します。
 
 ----
 ## Solver標準化  

@@ -47,7 +47,7 @@ def solve(M,P):
   M2=Dat2[:,:7].T
   P2=Dat2[:,7:14].T
   result=optimize.leastsq(fit_func,[0,0,0,0,0,0],args=(M1,P1,M2,P2),maxfev=100000,ftol=0.000001)
-  if result[1]!=1:
+  if result[1] not in [1,2,3,4]:
     print "rcalib_solver::scipy::optimize failed"
     return None
   result=np.asarray(result[0])

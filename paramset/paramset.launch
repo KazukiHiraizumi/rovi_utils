@@ -1,0 +1,10 @@
+<launch>
+  <rosparam command="load" ns="/rovi" file="$(find rovi_utils)/paramset/param.yaml" />
+  <node pkg="rovi_utils" type="paramset.py" name="" args="set:=[/rovi/live,/rovi/pshift_genpc]" output="screen">
+  </node>
+  <node pkg="rtk_tools" type="panel.py" name="" args="
+    conf:=$(find rovi_utils)/paramset/setup.zui
+    geom:=300x700-0+20
+    lift:=False"
+  />
+</launch>
